@@ -97,14 +97,14 @@ if __name__ == "__main__":
 
     # Iterate through the dataset's 'Prompt' column
     for m in dataset_manager.df['Prompt']:
-        print(f"Sending prompt: {prompt}")
+        print(f"Sending prompt: {m}")
         try:
             # Send prompt via RPC client
-            response = message_rpc.call(prompt)
+            response = message_rpc.call(m)
             if response is None:
-                print(f"Error: No response received for prompt '{prompt}'")
+                print(f"Error: No response received for prompt '{m}'")
             else:
-                print(f" [x] Requesting response for '{prompt}'")
+                print(f" [x] Requesting response for '{m}'")
                 print(f" [.] Got response: {response}")
         except Exception as e:
-            print(f"Error: An unexpected error occurred for prompt '{prompt}': {e}")
+            print(f"Error: An unexpected error occurred for prompt '{m}': {e}")
