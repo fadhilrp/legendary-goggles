@@ -1,0 +1,11 @@
+# Dockerfile.client
+FROM python:3.12-slim
+
+WORKDIR /legendary-goggles
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . .
+
+CMD ["uvicorn", "src.api.api_router:app", "--host", "0.0.0.0", "--port", "8000"]

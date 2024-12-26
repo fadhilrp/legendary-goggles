@@ -5,7 +5,7 @@ import pandas as pd
 from pika import exceptions
 
 class DatasetManager:
-    def __init__(self, path='../../components/prompt_engineering_dataset.csv'):
+    def __init__(self, path='components/prompt_engineering_dataset.csv'):
         try:
             self.df = pd.read_csv(path)
             if 'Prompt' not in self.df.columns or 'Response' not in self.df.columns:
@@ -28,7 +28,7 @@ class MessageRpcClient(object):
     def __init__(self):
         try:
             self.connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host='localhost'))
+                pika.ConnectionParameters(host='rabbitmq', port=5672, socket_timeout=2))
         except pika.exceptions.AMQPConnectionError as e:
             print(f"Error: Unable to connect to RabbitMQ server: {e}")
             exit(1)

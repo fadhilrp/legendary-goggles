@@ -12,14 +12,14 @@ from contextlib import contextmanager
 # Initialize components
 app = FastAPI()
 database = Database()
-router = RabbitRouter("amqp://guest:guest@localhost:5672/")
+router = RabbitRouter("amqp://guest:guest@rabbitmq:5672/")
 dataset_manager = DatasetManager()
 
 # Health checks
 _healthChecks = HealthCheckRegistry()
 _healthChecks.add(
     HealthCheckRabbitMQ(
-        host="localhost",
+        host="rabbitmq",
         port=5672,
         vhost="/",
         username="guest",

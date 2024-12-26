@@ -1,0 +1,56 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # AMQP protocol port
+      - "15672:15672"  # Management interface port
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  rpc_server1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - SERVER_NAME=server1
+      - QUEUE_NAME=rpc_queue1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rpc_server2:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - SERVER_NAME=server2
+      - QUEUE_NAME=rpc_queue2
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      rpc_server1:
+        condition: service_started
+
+  fastapi_client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - "8000:8000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RPC_QUEUE1=rpc_queue1
+      - RPC_QUEUE2=rpc_queue2
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      rpc_server1:
+        condition: service_started
+      rpc_server2:
+        condition: service_started

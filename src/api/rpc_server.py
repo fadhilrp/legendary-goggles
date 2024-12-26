@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 try:
     # Load dataset
-    df = pd.read_csv('../../components/prompt_engineering_dataset.csv')
+    df = pd.read_csv('components/prompt_engineering_dataset.csv')
 except FileNotFoundError as e:
     logging.error(f"Dataset file not found: {e}")
     exit(1)
@@ -23,7 +23,7 @@ except Exception as e:
 try:
     # Set up RabbitMQ connection
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='localhost'))
+        pika.ConnectionParameters(host='rabbitmq', port=5672, socket_timeout=2))
     channel = connection.channel()
     channel.queue_declare(queue='rpc_queue')
 except pika.exceptions.AMQPConnectionError as e:

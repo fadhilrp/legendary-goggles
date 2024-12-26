@@ -1,0 +1,8 @@
+requests~=2.32.3
+sqlmodel~=0.0.22
+fastapi[standard]~=0.115.6
+faststream[rabbit]~=0.5.33
+pydantic~=2.10.4
+pika~=1.3.2
+pandas~=2.2.3
+fastapi_healthz[rabbitmq]~=1.0.0

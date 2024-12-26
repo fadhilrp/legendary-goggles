@@ -9,9 +9,6 @@ if __name__ == "__main__":
         print("Error: Dataset is not available. Exiting.")
         exit(1)
 
-    # Create a MessageRpcClient instance
-    message_rpc = MessageRpcClient()
-
     # Iterate through the dataset's 'Prompt' column
     for m in dataset_manager.df['Prompt']:
         print(f"Sending prompt: {m}")
@@ -24,6 +21,6 @@ if __name__ == "__main__":
                 'm': f'{m}',
             }
 
-            requests.post('http://localhost:8000/prompt', json=data, headers=headers)
+            requests.post('http://0.0.0.0:8000/prompt', json=data, headers=headers)
         except Exception as e:
             print(f"Error: An unexpected error occurred for prompt '{m}': {e}")
