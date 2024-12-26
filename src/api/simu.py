@@ -1,4 +1,4 @@
-from src.api.rpc_client import *
+from src.api.rpc_client import DatasetManager
 import requests
 
 if __name__ == "__main__":
