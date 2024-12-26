@@ -1,56 +1,144 @@
-from fastapi import FastAPI, HTTPException
+from typing import Annotated, List
+from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlmodel import Session, select
 from fastapi_healthz import HealthCheckRegistry, HealthCheckRabbitMQ, health_check_route
 from faststream.rabbit.fastapi import RabbitRouter
 from pydantic import BaseModel
+from models import Log
+from database import Database
+from api.rpc_client import DatasetManager, MessageRpcClient
+from contextlib import contextmanager
 
-from rpc_client import DatasetManager, MessageRpcClient
-
+# Initialize components
+app = FastAPI()
+database = Database()
 router = RabbitRouter("amqp://guest:guest@localhost:5672/")
-_healthChecks = HealthCheckRegistry()
-_healthChecks.add(HealthCheckRabbitMQ(host="localhost", port=5672, vhost="/", username="guest", password="guest", ssl=False))
 dataset_manager = DatasetManager()
+
+# Health checks
+_healthChecks = HealthCheckRegistry()
+_healthChecks.add(
+    HealthCheckRabbitMQ(
+        host="localhost",
+        port=5672,
+        vhost="/",
+        username="guest",
+        password="guest",
+        ssl=False
+    )
+)
+
 
 class Incoming(BaseModel):
     m: str
 
 
-@router.get("/")
-def test():
+# Session dependency
+@contextmanager
+def get_session():
+    session = database.get_session()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+def get_db():
+    with get_session() as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_db)]
+
+
+# Event handlers
+@app.on_event("startup")
+def on_startup():
+    database.create_tables()
+
+
+# Routes
+@app.get("/")
+def root():
     return {"message": "API is running"}
 
-@router.post('/prompt')
-def get_response(inputData: Incoming):
-    """
-    Handles POST requests to process a prompt and retrieve its response.
 
-    Args:
-        inputData (Incoming): The input data containing the prompt.
-    Returns:
-        dict: A JSON response containing the prompt and corresponding response or an error message.
+@app.post("/prompt")
+async def create_prompt(inputData: Incoming, session: SessionDep):
+    """
+    Handle incoming prompts, process them through RPC, and store in database.
     """
     message_rpc = MessageRpcClient()
     prompt = inputData.m
 
-    # First, try to retrieve the response from the dataset
+    # Check dataset first
     response = dataset_manager.get_response(prompt)
-
-    # If the dataset is unavailable or no match is found, return an error
     if response == "Dataset unavailable.":
         raise HTTPException(status_code=500, detail="Dataset is unavailable.")
     elif response == "No match found.":
         raise HTTPException(status_code=404, detail="No matching prompt found.")
 
-    # If a dataset response is found, send it through the RPC client for further processing
     try:
+        # Process through RPC
         print(f"Sending prompt via RPC: {prompt}")
         rpc_response = message_rpc.call(prompt)
         if rpc_response is None:
-            raise HTTPException(status_code=500, detail=f"No response received for prompt '{prompt}'.")
-        print(f" [.] Received RPC response for prompt '{prompt}': {rpc_response}")
-        return {"prompt": prompt, "rpc_response": rpc_response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"No response received for prompt '{prompt}'."
+            )
 
-app = FastAPI()
+        # Store in database
+        log = Log(prompt=prompt, rpc_response=rpc_response)
+        session.add(log)
+        session.commit()
+        session.refresh(log)
+
+        return {
+            "prompt": prompt,
+            "rpc_response": rpc_response,
+            "log_id": log.id
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+
+
+@app.get("/logs/")
+def read_logs(
+        session: SessionDep,
+        offset: int = 0,
+        limit: Annotated[int, Query(le=100)] = 100,
+) -> List[Log]:
+    logs = session.exec(select(Log).offset(offset).limit(limit)).all()
+    return logs
+
+
+@app.get("/logs/{log_id}")
+def read_log(log_id: int, session: SessionDep) -> Log:
+    log = session.get(Log, log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    return log
+
+
+@app.delete("/logs/{log_id}")
+def delete_log(log_id: int, session: SessionDep):
+    log = session.get(Log, log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    session.delete(log)
+    session.commit()
+    return {"ok": True}
+
+
+# Include RabbitMQ router and health check
 app.include_router(router)
 app.add_api_route('/health', endpoint=health_check_route(registry=_healthChecks))
+
+# if __name__ == "__main__":
+#     import uvicorn
+#
+#     uvicorn.run(app, host="0.0.0.0", port=8000)

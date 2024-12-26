@@ -82,29 +82,3 @@ class MessageRpcClient(object):
             print(f"Error: AMQP Error during data event processing: {e}")
             return None
         return str(self.response)
-
-
-if __name__ == "__main__":
-    # Initialize DatasetManager
-    dataset_manager = DatasetManager('../../components/prompt_engineering_dataset.csv')
-
-    if dataset_manager.df is None:
-        print("Error: Dataset is not available. Exiting.")
-        exit(1)
-
-    # Create a MessageRpcClient instance
-    message_rpc = MessageRpcClient()
-
-    # Iterate through the dataset's 'Prompt' column
-    for m in dataset_manager.df['Prompt']:
-        print(f"Sending prompt: {m}")
-        try:
-            # Send prompt via RPC client
-            response = message_rpc.call(m)
-            if response is None:
-                print(f"Error: No response received for prompt '{m}'")
-            else:
-                print(f" [x] Requesting response for '{m}'")
-                print(f" [.] Got response: {response}")
-        except Exception as e:
-            print(f"Error: An unexpected error occurred for prompt '{m}': {e}")
