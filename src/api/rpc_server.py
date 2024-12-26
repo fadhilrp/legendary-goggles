@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pika
+from pika.exceptions import AMQPConnectionError
 import pandas as pd
 import logging
 
