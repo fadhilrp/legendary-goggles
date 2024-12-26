@@ -3,7 +3,7 @@ import requests
 
 if __name__ == "__main__":
     # Initialize DatasetManager
-    dataset_manager = DatasetManager('components/prompt_engineering_dataset.csv')
+    dataset_manager = DatasetManager('../../components/prompt_engineering_dataset.csv')
 
     if dataset_manager.df is None:
         print("Error: Dataset is not available. Exiting.")

@@ -2,6 +2,7 @@
 import pika
 import uuid
 import pandas as pd
+from pika import exceptions
 
 class DatasetManager:
     def __init__(self, path='../../components/prompt_engineering_dataset.csv'):

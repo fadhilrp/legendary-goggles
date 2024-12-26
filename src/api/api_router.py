@@ -4,9 +4,9 @@ from sqlmodel import Session, select
 from fastapi_healthz import HealthCheckRegistry, HealthCheckRabbitMQ, health_check_route
 from faststream.rabbit.fastapi import RabbitRouter
 from pydantic import BaseModel
-from models import Log
-from database import Database
-from api.rpc_client import DatasetManager, MessageRpcClient
+from src.api.database.models.models import Log
+from src.api.database.database import Database
+from src.api.rpc_client import DatasetManager, MessageRpcClient
 from contextlib import contextmanager
 
 # Initialize components
@@ -75,18 +75,23 @@ async def create_prompt(inputData: Incoming, session: SessionDep):
     response = dataset_manager.get_response(prompt)
     if response == "Dataset unavailable.":
         raise HTTPException(status_code=500, detail="Dataset is unavailable.")
-    elif response == "No match found.":
-        raise HTTPException(status_code=404, detail="No matching prompt found.")
+    # elif response == "No match found.":
+    #     raise HTTPException(status_code=404, detail="No matching prompt found.")
 
     try:
         # Process through RPC
         print(f"Sending prompt via RPC: {prompt}")
-        rpc_response = message_rpc.call(prompt)
+        if response == "No match found.":
+            rpc_response = "I don't know how to answer that"
+        else:
+            rpc_response = message_rpc.call(prompt)
         if rpc_response is None:
             raise HTTPException(
                 status_code=500,
                 detail=f"No response received for prompt '{prompt}'."
             )
+        else:
+            print(f"Received response via RPC: {rpc_response}")
 
         # Store in database
         log = Log(prompt=prompt, rpc_response=rpc_response)
