@@ -1,5 +1,6 @@
 # legendary-goggles
-legendary-goggles is a repository that is configured as a message broker that is intended to simulate microservices during high traffic. It tries to mimmick the behavior of chatbots with its message-reply format. It utilizes Python with [RabbitMQ](https://www.rabbitmq.com/) as its message broker, [FastAPI](https://fastapi.tiangolo.com/) as its web framework for building APIs, [FastStream](https://faststream.airt.ai) connects the services to queue making it possible to interact with event streams, and [Docker](https://www.docker.com/) for scalability. Oh, and [SQLite](https://www.sqlite.org/) as our database (here lies the diagram)
+legendary-goggles is a repository that is configured as a message broker that is intended to simulate microservices during high traffic. It tries to mimmick the behavior of chatbots with its message-reply format. It utilizes Python with [RabbitMQ](https://www.rabbitmq.com/) as its message broker, [FastAPI](https://fastapi.tiangolo.com/) as its web framework for building APIs, [FastStream](https://faststream.airt.ai) connects the services to queue making it possible to interact with event streams, and [Docker](https://www.docker.com/) for scalability. Oh, and [SQLite](https://www.sqlite.org/) as our database.
+![System Diagram](https://github.com/fadhilrp/legendary-goggles/blob/main/img/legendary-goggles.png)
 
 ## Running
 to run, first we need to clone this repository.
@@ -80,9 +81,36 @@ selecting the `DELETE /logs/{logs_id}` endpoint deletes the log you want to dele
 same endpoints apply to the functions.
 
 ## Mission 1
-thought process, use rpc
+thought process:
+1. since there are only four days left, despite its performance cutbacks python's general purpose helps speeds up development
+2. again with the general purpose, RabbitMQ should do the job where if a system simply needs to notify another part of the system to start to work on a task.
+3. get a dataset worth of prompts so it would simulate the real world scenario of chatbots.
+
+explanation:
+1. establish a simple pub/sub pipeline
+2. read the dataset, take the prompt as the input
+3. send all prompts to the subscriber through the publisher
+4. make sure the subscriber gets all of the message
+
+example output:
+![example output mission 1](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out1.png)
+ 
 ## Mission 2
-how it runs smoothly
+thought process:
+1. the subscriber should then reply after receiving the message
+2. one thing to do that is through a rpc server because it has a `reply_to` function
+3. use the responses from the dataset for the replies to the received messages
+
+explanation:
+1. convert both pub/sub to a rpc client and server.
+2. use the dataset to match the received message with the answer.
+3. make a placeholder to receive the answer.
+4. make sure the answer is received.
+5. add a condition if there are no matched answers in the dataset based on the message
+
+example output:
+![example output mission 2](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out2.png)
+
 ## Mission 3
 sample log outputs
 ## Mission 4
