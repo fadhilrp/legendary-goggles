@@ -169,3 +169,29 @@ explanation:
 
 ### Dataset
 A big thank you to Antrixsh Gupta on kaggle for uploading [Prompt Engineering and Responses Datas](https://www.kaggle.com/datasets/antrixsh/prompt-engineering-and-responses-dataset). This dataset is used for simulating the responses to the messages that are inserted into the queues.
+
+## Project Organisation
+```
+legendary-goggles/
+├── components/
+│   └── prompt_engineering_dataset.csv      # Dataset for the RPC servers
+├── img/                                    # Directory for project images/assets
+├── src/
+│   └── api/                               # Main API module
+│       ├── database/                      # Database related code
+│       │   ├── init.py               # Database module initialization
+│       │   ├── models.py                 # Database models/schemas
+│       │   └── database.db               # SQLite database file
+│       ├── init.py                   # API module initialization
+│       ├── api_router.py                 # FastAPI routes and endpoints
+│       ├── rpc_client.py                 # RabbitMQ RPC client implementation
+│       ├── rpc_server.py                 # RabbitMQ RPC server implementation
+│       └── simu.py                       # Simulation/testing utilities
+├── .gitignore                            # Git ignore file
+├── docker-compose.yml                    # Docker services orchestration
+├── Dockerfile.client                     # Docker build for FastAPI client
+├── Dockerfile.server                     # Docker build for RPC servers
+├── legendary-goggles.postman_collection.json  # Postman API collection
+├── README.md                            # Project documentation
+└── requirements.txt                     # Python dependencies
+```
