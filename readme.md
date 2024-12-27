@@ -93,8 +93,8 @@ thought process and enhancements
 ### Generative AI Usage
 - dockerfile troubleshooting
 - docker-compose generation
-- error handling
-- combination
+- error handling generation
+- combination of legacy files
 
 ### Dataset
 A big thank you to Antrixsh Gupta on kaggle for uploading [Prompt Engineering and Responses Datas](https://www.kaggle.com/datasets/antrixsh/prompt-engineering-and-responses-dataset). This dataset is used for simulating the responses to the messages that are inserted into the queues.
