@@ -166,6 +166,7 @@ explanation:
 - docker-compose generation
 - error handling generation
 - combination of legacy files into one or various files
+- automate some markdown
 
 ### Dataset
 A big thank you to Antrixsh Gupta on kaggle for uploading [Prompt Engineering and Responses Datas](https://www.kaggle.com/datasets/antrixsh/prompt-engineering-and-responses-dataset). This dataset is used for simulating the responses to the messages that are inserted into the queues.
