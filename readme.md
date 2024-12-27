@@ -112,17 +112,60 @@ example output:
 ![example output mission 2](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out2.png)
 
 ## Mission 3
-sample log outputs
+thought process:
+1. right now it could simulate the basic things, there should be edge cases where it would go wrong
+2. generative AI should be good with accelerating the integration of error handling and logging, let's use it
+
+explanation:
+1. on every bit of script, identify errors
+2. add error handling by sending logs to the identified errors
+
+example output:
+![example output mission 3a](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out3a.png)
+![example output mission 3b](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out3b.png)
+the output is the result of this function down here
+```python
+@app.get("/logs/{log_id}")
+def read_log(log_id: int, session: SessionDep) -> Log:
+    log = session.get(Log, log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    return log
+```
+
 ## Mission 4
-health stuff
+thought process:
+1. health checks should be based on the connection with the RabbitMQ, because the thing that's always alive is the message broker, and it's crucial to our services
+2. there should be a lot of libraries out there that should provide placeholders for health checks, another way to accelerate development. but we should do it our own next time if given the chance, it could potentially be better.
+
+explanation:
+1. import fastapi_healthz
+2. use placeholder to see how is the status of our services
+
+example output:
+![example output mission 4a](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out4a.png)
+![example output mission 4b](https://github.com/fadhilrp/legendary-goggles/blob/main/img/example_out4b.png)
+
 ## Mission 5
-thought process and enhancements
+thought process:
+1. as someone who would assess other's people work, it would be tedious if I need to install a lot of things to my environment locally.
+2. as someone who is being assessed I would want to streamline that.
+3. before I was experimenting on pure rpc messaging, I should add the norm of HTTP endpoints. I'd use FastAPI for quick deployments (Netflix also use FastAPI)
+4. connecting FastAPI to RabbitMQ becomes easy with the integration of FastStreams, a trending integration library that helps accelerate integration between services
+5. dockerize the application for easy deployment. docker allows us to easily create multiple identical instances of our application (containers) and distribute them across different servers. hence the portability of this microservice makes it easy to deploy and maintain.
+6. for future use and references, the log should be saved into a proper database. SQLite.
+
+explanation:
+1. FastStreamer allows the router to seem instantaneously click with the fastapi app
+2. making dockerfiles for client and server
+3. support dockerfiles with docker-compose.yml because the rabbitmq should start first before the server (second) and the fastapi client (third)
+4. integrate SQLite on client code, auto generating a database on-start, hence accessing logs is also a possibility
 
 ### Generative AI Usage
 - dockerfile troubleshooting
 - docker-compose generation
 - error handling generation
-- combination of legacy files
+- combination of legacy files into one or various files
 
 ### Dataset
 A big thank you to Antrixsh Gupta on kaggle for uploading [Prompt Engineering and Responses Datas](https://www.kaggle.com/datasets/antrixsh/prompt-engineering-and-responses-dataset). This dataset is used for simulating the responses to the messages that are inserted into the queues.
