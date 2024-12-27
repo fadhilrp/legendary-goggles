@@ -16,7 +16,7 @@ docker compose up
 ```
 our microservice is up and running!
 
-### How to send message
+### How to send a message
 sending a message and getting back a reply is the backbone of our system, here's how you do it.
 #### FastAPI Docs
 ```http request
@@ -61,7 +61,6 @@ to add a server instance we could do that from adding a server instance inside t
 ```
 increment the numbers (e.g. 2 to 3) it should be good to go.
 
-### How to produce errors
 ### How to check health
 to check the health of our service we could use 
 #### FastAPI Docs
@@ -72,12 +71,13 @@ you could select the one that says `http://localhost:8000/health` and bombs away
 ### How to see & delete logs
 #### FastAPI Docs
 - to see all logs
+selecting the `GET /logs/` endpoint should show all of our current logs.
 - to see a specific log
+selecting the `GET /logs/{logs_id}` endpoint should show the log you are currently looking for.
 - to delete a specific log
+selecting the `DELETE /logs/{logs_id}` endpoint deletes the log you want to delete.
 #### Postman
-- to see all logs
-- to see a specific log
-- to delete a specific log
+same endpoints apply to the functions.
 
 ## Mission 1
 thought process, use rpc
